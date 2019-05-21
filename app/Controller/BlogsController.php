@@ -30,11 +30,19 @@ class BlogsController extends AppController {
 		//exit();
 		$this->Blog->recursive = 0;
 		$limit = 100;
-		$this->Paginator->settings = array( 'limit' => $limit ,'order'=> array('Blog.id'=>'desc'));
+		$this->Paginator->settings = array(
+//			'fields' => array('Blog.id','Blog.title','Blog.content', "DATE_FORMAT(up_date,'%Y-%m-%d') as date_str" ),
+			'limit' => $limit ,
+			'order'=> array('Blog.id'=>'desc')
+		);
 		$dats = $this->Paginator->paginate();
 		$arr = array();
 		foreach ($dats as $dat){
-			$arr[] = $dat["Blog"];
+			$item = $dat["Blog"];
+			$dt = date( "Y-m-d", strtotime( $dat["Blog"]["up_date"] ) ); 
+			// $dt = date( "Y-m-d", strtotime( "2019-05-21 09:19:21" ) ); 
+			$item["date_str"] = $dt;
+			$arr[] = $item;
 		}
 //		var_dump($arr );
 		$this->out_crosHead();
@@ -63,6 +71,8 @@ class BlogsController extends AppController {
 		}
 		$options = array('conditions' => array('Blog.' . $this->Blog->primaryKey => $id));
 		$dat = $this->Blog->find('first', $options);
+		$dt = date( "Y-m-d", strtotime( $dat["Blog"]["up_date"] ) ); 
+		$dat["Blog"]["date_str"] = $dt;
 		$this->out_crosHead();		
 		echo(json_encode($dat["Blog"]));
 		exit();
